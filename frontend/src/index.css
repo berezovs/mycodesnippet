@@ -1,0 +1,23 @@
+html {
+  margin: 0px;
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  
+  margin: 0px;
+  height: 100%;
+
+}
+#root{
+  min-height: 100%;
+}
+
+.hover:hover {
+  background-color:hsl(206, 70%, 96%);
+}
+
+.cursor {
+  cursor: pointer;
+}
