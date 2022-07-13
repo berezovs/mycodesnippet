@@ -13,6 +13,7 @@ import {
     SiKotlin
 } from "react-icons/si";
 import Editor from './Editor'
+import api from '../axios/api'
 
 const iconSize = 24;
 const languages = ['C++', 'Java', 'Javascript', 'C#', 'PHP', 'HTML', 'CSS', 'Python', 'Kotlin', 'Typescript',]
@@ -58,8 +59,9 @@ const Home = () => {
     const handleSubmit = () => {
         if (snippetIsValid(snippet)) {
             //TODO implement adding the snippet to the side menu
-            setState([...state, snippet])
-            setSnippet({ code: "", language: "", name: "" })
+            postSnippet()
+            // setState([...state, snippet])
+            // setSnippet({ code: "", language: "", name: "" })
         }
         else {
             setError({ message: "All fields need to be filled out" })
@@ -74,6 +76,15 @@ const Home = () => {
     const handleClick = (index) => {
         setisEditable(false)
         setSnippet({ ...state[index] })
+    }
+
+    const postSnippet = () => {
+        api.post('/api/snippet', {
+            snippet: snippet
+        })
+        .then((response)=>{
+            console.log(response)
+        })
     }
 
 
