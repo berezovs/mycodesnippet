@@ -40,6 +40,10 @@ const Home = () => {
     const [isEditable, setisEditable] = useState(true)
 
 
+    useEffect(() => {
+        getSnippets();
+    }, [])
+
     const handleChange = (e) => {
         setShowError(false)
         const [name, value] = [e.target.name, e.target.value]
@@ -80,18 +84,32 @@ const Home = () => {
 
     const postSnippet = () => {
         api.post('/api/snippet', {
-            snippet: snippet
+            user_id: '1',
+            ...snippet,
         })
-        .then((response)=>{
-            console.log(response)
-        })
+            .then((response) => {
+                console.log(response)
+            })
+    }
+
+
+    const getSnippets = () => {
+        api.get(`/api/snippets/1`)
+            .then((response) => {
+                if (response && response.status === 200) {
+                    console.log(response)
+                    setState([...response.data])
+                } else {
+                    console.log("request failed")
+                }
+            })
     }
 
 
     return (
         <div className="tile is-ancestor mt-5">
             <div className="tile is-3 is-parent pt-0 is-vertical mx-3">
-            <button className='button is-success'>New</button>
+                <button className='button is-success'>New</button>
                 <div className='tile is-child box px-0'>
 
                     {

@@ -26,4 +26,6 @@ Route::get('/', function () {
     return response()->json(['data'=>'hello world']);
 });
 
+Route::get('/snippets/{user_id}', [SnippetController::class, 'index']);
+
 Route::post('/snippet', [SnippetController::class, 'store']);
