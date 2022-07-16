@@ -14,6 +14,7 @@ import {
 } from "react-icons/si";
 import Editor from './Editor'
 import api from '../axios/api'
+import axios from 'axios';
 
 const iconSize = 24;
 const languages = ['C++', 'Java', 'Javascript', 'C#', 'PHP', 'HTML', 'CSS', 'Python', 'Kotlin', 'Typescript',]
@@ -89,6 +90,7 @@ const Home = () => {
         })
             .then((response) => {
                 console.log(response)
+                getSnippets()
             })
     }
 
@@ -105,11 +107,25 @@ const Home = () => {
             })
     }
 
+    const clearForm = () => {
+        setSnippet({ code: "", language: "", name: "" })
+    }
+
+    const deleteSnippet = () => {
+        api.delete(`/api/users/1/snippets/${snippet.id}`)
+        .then((response)=>{
+            if(response && response.status===200){
+                getSnippets()
+            }
+        })
+
+    }
+
 
     return (
         <div className="tile is-ancestor mt-5">
             <div className="tile is-3 is-parent pt-0 is-vertical mx-3">
-                <button className='button is-success'>New</button>
+                <button className='button is-success' onClick={clearForm}>New</button>
                 <div className='tile is-child box px-0'>
 
                     {
@@ -158,7 +174,7 @@ const Home = () => {
                         <p className='control'>
                             <input name="name" className="input" type="text" placeholder="snippet name" onChange={handleChange} value={snippet.name} />
                         </p>
-                        <p className='control'>
+                        <div className='control'>
                             <div className="select">
                                 <select name="language" onChange={handleChange} value={snippet.language}>
                                     <option></option>
@@ -170,7 +186,7 @@ const Home = () => {
                                     }
                                 </select>
                             </div>
-                        </p>
+                        </div>
                         <p className='control'> <button className="button is-link" onClick={handleSubmit}>
                             Save
                         </button></p>
@@ -178,7 +194,7 @@ const Home = () => {
                         {
                             !isEditable ?
                                 (<div className='control'>
-                                    <button className='button is-danger'>Delete</button>
+                                    <button className='button is-danger' onClick={deleteSnippet}>Delete</button>
                                 </div>) :
                                 <div></div>
                         }

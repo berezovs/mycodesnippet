@@ -29,3 +29,4 @@ Route::get('/', function () {
 Route::get('/snippets/{user_id}', [SnippetController::class, 'index']);
 
 Route::post('/snippet', [SnippetController::class, 'store']);
+Route::delete('/users/{user}/snippets/{snippet}', [SnippetController::class, 'delete']);

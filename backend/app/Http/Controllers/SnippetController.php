@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Snippet;
 use Illuminate\Http\Request;
 
@@ -30,5 +31,9 @@ class SnippetController extends Controller
     {
         $snippets = Snippet::where('user_id', $user_id)->get();
         return response()->json($snippets);
+    }
+
+    public function delete(User $user, Snippet $snippet){
+        Snippet::destroy($snippet->id);
     }
 }

@@ -12,14 +12,15 @@ import "ace-builds/src-noconflict/theme-textmate"
 import "ace-builds/src-noconflict/ext-language_tools";
 
 
-const Editor = ({handleChange, snippet}) => {
+const Editor = ({ handleChange, snippet }) => {
     function onChange(newValue) {
-        handleChange({target:{name:"code", value: newValue}})
+        handleChange({ target: { name: "code", value: newValue } })
     }
 
     // Render editor
     return (
         <AceEditor
+            setOptions={{ useWorker: false }}
             mode="javascript"
             onChange={onChange}
             theme="monokai"
