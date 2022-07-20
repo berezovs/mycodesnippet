@@ -14,7 +14,7 @@ import {
 } from "react-icons/si";
 import Editor from './Editor'
 import api from '../axios/api'
-import axios from 'axios';
+
 
 const iconSize = 24;
 const languages = ['C++', 'Java', 'Javascript', 'C#', 'PHP', 'HTML', 'CSS', 'Python', 'Kotlin', 'Typescript',]
@@ -52,11 +52,11 @@ const Home = () => {
     }
 
     useEffect(() => {
-        console.log(snippet)
+
     }, [snippet])
 
     useEffect(() => {
-        console.log(state)
+
     }, [state])
 
 
@@ -84,26 +84,26 @@ const Home = () => {
     }
 
     const postSnippet = () => {
-        api.post('/api/snippet', {
+        api.post('/api/users/1/snippets', {
             user_id: '1',
             ...snippet,
         })
             .then((response) => {
-                console.log(response)
                 getSnippets()
             })
     }
 
 
     const getSnippets = () => {
-        api.get(`/api/snippets/1`)
+        api.get(`/api/users/1/snippets/`)
             .then((response) => {
                 if (response && response.status === 200) {
-                    console.log(response)
+
                     setState([...response.data])
-                } else {
-                    console.log("request failed")
                 }
+            }).catch((err) => {
+                setError({ message: err.message })
+                setShowError(true)
             })
     }
 
@@ -113,11 +113,11 @@ const Home = () => {
 
     const deleteSnippet = () => {
         api.delete(`/api/users/1/snippets/${snippet.id}`)
-        .then((response)=>{
-            if(response && response.status===200){
-                getSnippets()
-            }
-        })
+            .then((response) => {
+                if (response && response.status === 200) {
+                    getSnippets()
+                }
+            })
 
     }
 
