@@ -5,6 +5,8 @@ const api = axios.create({
     baseURL: 'http://localhost',
 })
 
+api.defaults.withCredentials = true
+
 api.interceptors.response.use(
     res=>res,
     error=>{

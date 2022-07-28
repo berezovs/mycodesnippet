@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SnippetController;
 
 
@@ -17,16 +18,22 @@ use App\Http\Controllers\SnippetController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 
 Route::get('/', function () {
-    return response()->json(['data'=>'hello world']);
+    return response()->json(['data' => 'hello world']);
 });
 
-Route::get('/users/{user_id}/snippets/', [SnippetController::class, 'index']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/users/{user_id}/snippets', [SnippetController::class, 'store']);
-Route::delete('/users/{user}/snippets/{snippet}', [SnippetController::class, 'delete']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/users/{user_id}/snippets/', [SnippetController::class, 'index']);
+    Route::post('/users/{user_id}/snippets', [SnippetController::class, 'store']);
+    Route::delete('/users/{user}/snippets/{snippet}', [SnippetController::class, 'delete']);
+});

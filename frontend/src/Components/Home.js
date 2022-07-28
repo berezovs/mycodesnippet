@@ -95,16 +95,20 @@ const Home = () => {
 
 
     const getSnippets = () => {
-        api.get(`/api/users/1/snippets/`)
-            .then((response) => {
-                if (response && response.status === 200) {
+        api.get('/sanctum/csrf-cookie').then(response => {
+            // Login...
+            api.get(`/api/users/1/snippets/`)
+                .then((response) => {
+                    if (response && response.status === 200) {
 
-                    setState([...response.data])
-                }
-            }).catch((err) => {
-                setError({ message: err.message })
-                setShowError(true)
-            })
+                        setState([...response.data])
+                    }
+                }).catch((err) => {
+                    setError({ message: err.message })
+                    setShowError(true)
+                })
+        })
+
     }
 
     const clearForm = () => {
@@ -156,7 +160,7 @@ const Home = () => {
                 {
 
                     (showError) ?
-                        <div class="notification is-danger">
+                        <div className="notification is-danger">
                             {error.message}
                         </div>
                         :
