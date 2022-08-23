@@ -2,16 +2,19 @@ import React, { Component } from 'react';
 import Home from './Components/Home'
 import Register from './Components/Register'
 import Login from './Components/Login'
-import Logout from './Components/Logout'
-
+import { Routes, Route, Link } from "react-router-dom";
 class App extends Component {
   render() {
     return (
       <>
-        <Register />
-        <Login />
-        <Logout />
-        <Home />
+
+        <Routes>
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Home />} />
+        </Routes>
+
+
       </>
 
     );
