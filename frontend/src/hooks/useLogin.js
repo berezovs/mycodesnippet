@@ -1,10 +1,12 @@
 
 import { ReactSession } from 'react-client-session';
 import { useNavigate } from "react-router-dom";
+import useSession from './useSession';
 import api from '../axios/api'
 
 export const useLogin = () => {
-    ReactSession.setStoreType("localStorage");
+    const { getSession, setSession } = useSession()
+
     const navigate = useNavigate()
 
     const login = (credentials) => {
@@ -14,11 +16,11 @@ export const useLogin = () => {
                 ...credentials
             }).then((res) => {
                 console.log(res)
-                if (res && res.statusText === 'OK'){
-                    ReactSession.set("mycodesnippetUser", res.data.user);
+                if (res && res.statusText === 'OK') {
+                    setSession(res.data.user)
                     navigate("../", { replace: true });
                 }
-                    
+
             })
                 .catch((err) => {
                     console.log("Login failed")

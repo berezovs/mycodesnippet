@@ -1,20 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { ReactSession } from 'react-client-session';
 import { useNavigate } from 'react-router-dom';
+import useSession from '../hooks/useSession';
 import Logout from './Logo'
 import 'bulma/css/bulma.css'
-import {
-    SiJavascript,
-    SiJava,
-    SiTypescript,
-    SiCplusplus,
-    SiPython,
-    SiCss3,
-    SiHtml5,
-    SiCsharp,
-    SiPhp,
-    SiKotlin
-} from "react-icons/si";
+import useIcons from '../hooks/useIcons';
 import Editor from './Editor'
 import api from '../axios/api'
 
@@ -22,18 +12,7 @@ import api from '../axios/api'
 
 const iconSize = 24;
 const languages = ['C++', 'Java', 'Javascript', 'C#', 'PHP', 'HTML', 'CSS', 'Python', 'Kotlin', 'Typescript',]
-const languageIcons = {
-    'Javascript': <SiJavascript size={iconSize} color={'purple'} />,
-    'Java': <SiJava size={iconSize} color={'purple'} />,
-    'C++': <SiCplusplus size={iconSize} color={'purple'} />,
-    'C#': <SiCsharp size={iconSize} color={'purple'} />,
-    'PHP': <SiPhp size={iconSize} color={'purple'} />,
-    'HTML': <SiHtml5 size={iconSize} color={'purple'} />,
-    'CSS': <SiCss3 size={iconSize} color={'purple'} />,
-    'Python': <SiPython size={iconSize} color={'purple'} />,
-    'Kotlin': <SiKotlin size={iconSize} color={'purple'} />,
-    'Typescript': <SiTypescript size={iconSize} color={'purple'} />
-}
+
 
 
 
@@ -52,17 +31,23 @@ const Home = () => {
     const [selectedSnippetIndex, setSelectedSnippetIndex] = useState(-1)
     const [isSaveButtonLoading, setSaveButtonLoading] = useState(false)
 
-
+    const { getSession, setSession } = useSession()
+    const { languageIcons } = useIcons()
 
     useEffect(() => {
-        const session = ReactSession.get("mycodesnippetUser")
-        if (session) {
-            setUserId(session.id)
-            console.log("Called ", userId)
+
+        const fetchUser = async () => {
+            const session = await getSession()
+            if (session) {
+                setUserId(session.id)
+            }
+            else {
+                navigate("../login", { replace: true });
+            }
         }
-        else {
-            navigate("../login", { replace: true });
-        }
+        fetchUser()
+
+
     }, [])
 
     useEffect(() => {
@@ -79,18 +64,11 @@ const Home = () => {
         setSnippet({ ...snippet, [name]: value })
     }
 
-    useEffect(() => {
-        console.log(snippet)
-    }, [snippet])
-
 
     const handleSubmit = () => {
         if (snippetIsValid(snippet)) {
             //TODO implement adding the snippet to the side menu
-            console.log("Clicked")
             postSnippet(userId)
-            // setState([...state, snippet])
-            // setSnippet({ code: "", language: "", name: "" })
         }
         else {
             setError({ message: "All fields need to be filled out" })
@@ -137,7 +115,7 @@ const Home = () => {
                     }
                 }).catch((err) => {
                     setError({ message: err.message })
-                    ReactSession.set("mycodesnippetUser", null)
+                    setSession(null)
                     navigate("../login", { replace: true })
                     setShowError(true)
                 })
@@ -147,6 +125,7 @@ const Home = () => {
 
     const updateSnippet = () => {
         const url = `/api/users/${userId}/snippets/${snippet.id}`
+        console.log(snippet)
         api.put(url, {
             id: userId,
             ...snippet
@@ -281,69 +260,6 @@ const Home = () => {
                 <Editor handleChange={handleChange} snippet={snippet.code} isReadonly={isReadonly} />
             </div>
         </div>
-
-        {/* <div className="tile is-ancestor mt-5">
-            <div className="tile is-3 is-parent pt-0 is-vertical mx-3">
-                <button className='button is-success' onClick={clearForm}>New</button>
-                
-            </div>
-            <div className="tile is-7 is-vertical mx-3 ">
-
-
-                {
-
-                    (showError) ?
-                        <div className="notification is-danger">
-                            {error.message}
-                        </div>
-                        :
-                        <div></div>
-                }
-
-                <div className='tile mb-3'>
-                    <Editor handleChange={handleChange} snippet={snippet.code} />
-                </div>
-
-                <div className='tile is-justify-content-space-between'>
-
-
-                    <div className='field is-grouped'>
-                        <p className='control'>
-                            <input name="name" className="input" type="text" placeholder="snippet name"  />
-                        </p>
-                        <div className='control'>
-                            <div className="select">
-                                <select name="language" onChange={handleChange} value={snippet.language}>
-                                    <option></option>
-                                    {
-                                        languages.sort().map((language, index) =>
-                                        (
-                                            <option key={index}>{language}</option>
-                                        ))
-                                    }
-                                </select>
-                            </div>
-                        </div>
-                        <p className='control'> <button className="button is-link" onClick={handleSubmit}>
-                            Save
-                        </button></p>
-
-                        {
-                            !isEditable ?
-                                (<div className='control'>
-                                    <button className='button is-danger' onClick={(e)=>deleteSnippet(userId)}>Delete</button>
-                                </div>) :
-                                <div></div>
-                        }
-                    </div>
-
-
-
-                </div>
-
-            </div>
-        </div> */}
-
     </>
     )
 }
