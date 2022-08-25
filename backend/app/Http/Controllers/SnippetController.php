@@ -5,19 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Snippet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SnippetController extends Controller
 {
     //
-    public function store(Request $request)
+    public function store(User $user, Request $request)
     {
 
         $snippet = new Snippet;
-        $snippet->user_id = $request->input('user_id');
+        $snippet->user_id = $request->input('user');
         $snippet->name = $request->input('name');
         $snippet->language = $request->input('language');
         $snippet->code = $request->input('code');
-
+        $snippet->user_id = $user->id;
         $result = $snippet->save();
 
         if ($result) {
@@ -27,9 +28,9 @@ class SnippetController extends Controller
         }
     }
 
-    public function index($user_id)
+    public function index($user)
     {
-        $snippets = Snippet::where('user_id', $user_id)->get();
+        $snippets = Snippet::where('user_id', $user)->get();
         return response()->json($snippets);
     }
 
@@ -39,10 +40,10 @@ class SnippetController extends Controller
         return response()->json(["success" => true], 200);
     }
 
-    public function update(Request $request)
+    public function update(User $user, Snippet $snippet, Request $request)
     {
-        Snippet::where('id', $request->id)
-            ->update(['name' => $request->name, 'code' => $request->code]);
+        Log::debug([$snippet, $request->name, $request->code]);
+        $snippet->fill(['name' => $request->name, 'code' => $request->code])->save();
         return response()->json(["success" => true], 200);
     }
 }

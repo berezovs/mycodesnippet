@@ -9,7 +9,7 @@ class Snippet extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['snippet', 'language', 'user_id', 'modified_at'];
+    protected $fillable = ['name', 'code', 'language', 'user_id', 'modified_at'];
 
 
     public function author(){
