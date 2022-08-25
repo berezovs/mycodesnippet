@@ -36,4 +36,5 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/users/{user_id}/snippets/', [SnippetController::class, 'index']);
     Route::post('/users/{user_id}/snippets', [SnippetController::class, 'store']);
     Route::delete('/users/{user}/snippets/{snippet}', [SnippetController::class, 'delete']);
+    Route::put('/users/{user}/snippets/{snippet}', [SnippetController::class, 'update']);
 });

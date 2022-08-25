@@ -66,7 +66,6 @@ const Home = () => {
     }, [])
 
     useEffect(() => {
-
         if (userId) {
             getSnippets(userId)
         }
@@ -76,6 +75,7 @@ const Home = () => {
     const handleChange = (e) => {
         setShowError(false)
         const [name, value] = [e.target.name, e.target.value]
+        console.log(value)
         setSnippet({ ...snippet, [name]: value })
     }
 
@@ -115,10 +115,11 @@ const Home = () => {
             ...snippet,
         })
             .then((response) => {
-                setSnippet({ name: "", code: "", laanguage: "" })
+                setSnippet({ name: "", code: "", language: "" })
                 setShowNewSnippetForm(false)
                 getSnippets(id)
                 setSaveButtonLoading(false)
+                setIsReadonly(true)
             })
     }
 
@@ -126,7 +127,6 @@ const Home = () => {
     const getSnippets = (id) => {
 
         const url = `/api/users/${userId}/snippets/`
-        console.log(url)
         api.get('/sanctum/csrf-cookie').then(response => {
             // Login...
             api.get(url)
@@ -145,15 +145,36 @@ const Home = () => {
 
     }
 
+    const updateSnippet = () => {
+        const url = `/api/users/${userId}/snippets/${snippet.id}`
+        api.put(url, {
+            id: userId,
+            ...snippet
+        })
+            .then((res) => {
+                if (res && res.status === 200) {
+                    getSnippets(userId)
+                    setShowChangesButtonGroup(false)
+                    clearForm()
+                }
+            })
+            .catch((error) => {
+
+            })
+    }
+
     const clearForm = (id) => {
         setSnippet({ code: "", language: "", name: "" })
     }
 
-    const deleteSnippet = (id) => {
-        api.delete(`/api/users/${id}/snippets/${snippet.id}`)
+    const deleteSnippet = () => {
+        const url = `/api/users/${userId}/snippets/${snippet.id}`
+        //console.log(snippet, url)
+        api.delete(url)
             .then((response) => {
                 if (response && response.status === 200) {
-                    getSnippets(id)
+                    getSnippets(userId)
+                    setShowConfirmDeleteButton(false)
                 }
             })
 
@@ -213,7 +234,7 @@ const Home = () => {
                                     {
 
                                         (showSaveChangesButtonGroup && selectedSnippetIndex === index) ?
-                                            <input className="input is-small is-focused ml-4" name="name" value={snippet.name} onChange={(e) => handleChange(e)} />
+                                            <input type="text" className="input is-small is-focused ml-4" name="name" onChange={handleChange} defaultValue={snippet.name} />
                                             :
                                             <p className="pl-4 has-text-white">{snippet.name}</p>
                                     }
@@ -223,7 +244,7 @@ const Home = () => {
                                     (snippetHovered > -1 && snippetHovered === index && !showConfirmDeleteButton && !showSaveChangesButtonGroup) ?
                                         <div className='is-flex'>
                                             <button className='button is-small is-warning mr-2' onClick={() => { setShowChangesButtonGroup(true); setIsReadonly(false) }}>Edit</button>
-                                            <button className='button is-small is-danger' onClick={() => setShowConfirmDeleteButton(true)}>Delete</button>
+                                            <button className='button is-small is-danger' onClick={() => { setShowConfirmDeleteButton(true); }}>Delete</button>
                                         </div>
                                         :
                                         <div className="is-hidden"></div>
@@ -231,7 +252,7 @@ const Home = () => {
                                 {
                                     (showSaveChangesButtonGroup && index === selectedSnippetIndex) ?
                                         <div className="is-flex">
-                                            <button className='button is-small is-success mr-2'>Save</button>
+                                            <button className='button is-small is-success mr-2' onClick={() => { updateSnippet() }}>Save</button>
                                             <button className='button is-small is-danger' onClick={() => { setShowChangesButtonGroup(false); setIsReadonly(true) }}>Cancel</button>
                                         </div>
                                         :
@@ -241,7 +262,7 @@ const Home = () => {
                                 {
                                     (showConfirmDeleteButton && index === selectedSnippetIndex) ?
                                         <div className="is-flex">
-                                            <button className="button is-small is-success mr-2">Confirm</button>
+                                            <button className="button is-small is-success mr-2" onClick={() => { deleteSnippet() }}>Confirm</button>
                                             <button className="button is-small is-danger" onClick={() => setShowConfirmDeleteButton(false)}>Cancel</button>
                                         </div>
                                         :

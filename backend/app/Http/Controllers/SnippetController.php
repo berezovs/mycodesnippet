@@ -33,7 +33,16 @@ class SnippetController extends Controller
         return response()->json($snippets);
     }
 
-    public function delete(User $user, Snippet $snippet){
+    public function delete(User $user, Snippet $snippet)
+    {
         Snippet::destroy($snippet->id);
+        return response()->json(["success" => true], 200);
+    }
+
+    public function update(Request $request)
+    {
+        Snippet::where('id', $request->id)
+            ->update(['name' => $request->name, 'code' => $request->code]);
+        return response()->json(["success" => true], 200);
     }
 }
