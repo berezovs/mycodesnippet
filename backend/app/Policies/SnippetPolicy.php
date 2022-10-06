@@ -21,25 +21,25 @@ class SnippetPolicy
         //
     }
 
-    public function update(User $user, Snippet $snippet)
+    public function update(Snippet $snippet)
     {
-        return $user->id === $snippet->user_id
+        return auth()->user()->id === $snippet->user_id
             ? Response::allow()
             :
             Response::deny("You do not own this snippet");
     }
 
-    public function delete(User $user, Snippet $snippet)
+    public function delete(Snippet $snippet)
     {
-        return $user->id === $snippet->user_id
+        return auth()->user()->id=== $snippet->user_id
             ? Response::allow()
             :
             Response::deny("You do not own this snippet");
     }
 
-    public function store(User $user, Snippet $snippet)
+    public function store(Snippet $snippet)
     {
-        return $user->id === $snippet->user_id
+        return auth()->user()->id === $snippet->user_id
             ? Response::allow()
             :
             Response::deny("You do not own this snippet");

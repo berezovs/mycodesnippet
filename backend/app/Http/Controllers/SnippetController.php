@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Log;
 class SnippetController extends Controller
 {
     //
-    public function store(User $user, Request $request)
+    public function store(Request $request)
     {
 
         $snippet = new Snippet;
@@ -18,32 +18,37 @@ class SnippetController extends Controller
         $snippet->name = $request->input('name');
         $snippet->language = $request->input('language');
         $snippet->code = $request->input('code');
-        $snippet->user_id = $user->id;
+        $snippet->user_id = auth()->user()->id;
         $result = $snippet->save();
 
         if ($result) {
-            return response()->json(['result' => $result], 200);
+            return response()->json(['success' => true], 200);
         } else {
             return response()->json(['result' => 'operation failed'], 500);
         }
     }
 
-    public function index($user)
+    public function index()
     {
-        $snippets = Snippet::where('user_id', $user)->get();
+        $snippets = Snippet::where('user_id', auth()->user()->id)->orderBy('created_at', 'desc')->paginate(14);
         return response()->json($snippets);
     }
 
-    public function delete(User $user, Snippet $snippet)
+    public function delete(Snippet $snippet)
     {
         Snippet::destroy($snippet->id);
         return response()->json(["success" => true], 200);
     }
 
-    public function update(User $user, Snippet $snippet, Request $request)
+    public function update(Snippet $snippet, Request $request)
     {
-        Log::debug([$snippet, $request->name, $request->code]);
-        $snippet->fill(['name' => $request->name, 'code' => $request->code])->save();
-        return response()->json(["success" => true], 200);
+        Log::debug(['message' => "hello World"]);
+
+        $wasUpdated = $snippet->fill(['name' => $request->name, 'code' => $request->code])->save();
+        if ($wasUpdated) {
+            return response()->json(["success" => true, 'snippet' => Snippet::where('id', $request->id)->get()], 200);
+        } else {
+            return response()->json(['success' => false], 500);
+        }
     }
 }

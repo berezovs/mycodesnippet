@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SendVerificationEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,10 +20,15 @@ class AuthController extends Controller
 
         $result = User::where('email', $request->input('email'))->get();
         if (!$result->isEmpty()) {
-            return response()->json(['success' => false, 'message' => 'email already exists']);
+            return response()->json(['success' => false, 'message' => 'This email is already in use'], 409);
         } else {
             $saved = $user->save();
-            return response()->json(['success' => $saved]);
+            if ($saved) {
+                SendVerificationEmail::dispatch($user->email);
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json(['success' => false], 500);
+            }
         }
     }
 
@@ -33,17 +39,14 @@ class AuthController extends Controller
                 'message' => 'Invalid login details'
             ], 401);
         }
-        return response()->json(['success'=>true, 'user'=>User::where('email', $request->input('email'))->first()]);
-        $request->session()->regenerate();
-        
-        
+        $token = $request->user()->createToken("API_TOKEN");
+
+        return ['token' => $token->plainTextToken];
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return response()->json(['success'=>true]);
+        $request->user()->tokens()->delete();
+        return response()->json(['success' => true]);
     }
 }
