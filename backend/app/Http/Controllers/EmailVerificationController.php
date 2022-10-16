@@ -17,20 +17,35 @@ class EmailVerificationController extends Controller
     public function send(Request $request)
     {
         SendVerificationEmail::dispatch($request->query('email'));
-        return response()->json(['success' => true], 200);
+
+        $user = User::where('email', $request->query('email'))->first();
+
+        if ($user->email_verified_at) {
+            
+            return response()->json(['success' => false], 409);
+        }
+        return response()->json(['success' => true], 200);  
     }
 
     public function verify(Request $request)
     {
         $email = $request->query('email');
         $user = User::where('email', $email)->first();
+        $request->validate([
+            'pin' => 'string|required'
+        ]);
         if ($user) {
             $email_verification_details = DB::table('email_verification_pin')->where([
                 ['user_id', '=', $user->id],
                 ['pin', '=', $request->input('pin')]
             ]);
 
-            if ($email_verification_details->get()->isNotEmpty() && Carbon::create($email_verification_details->first()->created_at)->addHour() > Carbon::now()) {
+            if ($email_verification_details->get()->isEmpty()) {
+                
+                return response()->json(['success' => false], 403);
+            }
+
+            if (Carbon::create($email_verification_details->first()->created_at)->addHour() > Carbon::now()) {
                 //validate email by inserting current date in the email_verified_at field of the user record
                 $user->email_verified_at  = Carbon::now();
                 $user->save();

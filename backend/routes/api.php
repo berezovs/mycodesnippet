@@ -26,17 +26,18 @@ use App\Http\Controllers\EmailVerificationController;
 // });
 
 
-Route::get('/', function () {
-    return response()->json(['data' => 'hello world']);
-});
-
-Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
-Route::post('/resend-email', [EmailVerificationController::class, 'send']);
-Route::post('/verify-email', [EmailVerificationController::class, 'verify']);
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['email.verified'])->group(
+    function () {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/resend-email', [EmailVerificationController::class, 'send']);
+        Route::post('/verify-email', [EmailVerificationController::class, 'verify']);
+    }
+);
+
+Route::middleware(['email.verified', 'auth:sanctum',])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::get('/users/me', [UserController::class, 'index']);
     Route::post('/snippets', [SnippetController::class, 'store']);
